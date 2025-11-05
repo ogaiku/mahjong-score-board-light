@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻雀スコアボード</title>
+  <meta name="description" content="麻雀の対戦記録・統計・ランキングを表示する軽量Webサイト">
+  
+  <!-- Chart.js for グラフ表示 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- スタイルシート -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ローディング画面 -->
+  <div id="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>読み込み中...</p>
+  </div>
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">🀄 麻雀スコアボード</h1>
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="rankings">ランキング</button>
+        <button class="nav-btn" data-tab="recent">最近の対戦</button>
+        <button class="nav-btn" data-tab="players">プレイヤー統計</button>
+        <button class="nav-btn" data-tab="compare">対戦比較</button>
+      </nav>
+      <div class="header-actions">
+        <select id="season-select" class="season-select">
+          <option value="">シーズン選択...</option>
+        </select>
+        <button id="add-game-btn" class="btn btn-primary" title="対戦記録を入力">
+          📝 記録入力
+        </button>
+        <button id="refresh-btn" class="btn btn-refresh">
+          <span class="refresh-icon">🔄</span> 更新
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="main">
+    <div class="container">
+      
+      <!-- ランキングタブ -->
+      <div id="rankings-tab" class="tab-content active">
+        <div class="tab-header">
+          <h2>🏆 総合ランキング</h2>
+          <div class="stats-summary" id="stats-summary"></div>
+        </div>
+        
+        <div class="card">
+          <div class="ranking-table-wrapper">
+            <table id="rankings-table" class="ranking-table">
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>プレイヤー</th>
+                  <th>対戦数</th>
+                  <th>平均スコア</th>
+                  <th>平均順位</th>
+                  <th>1位率</th>
+                  <th>順位分布</th>
+                </tr>
+              </thead>
+              <tbody id="rankings-tbody">
+                <tr>
+                  <td colspan="7" class="no-data">データを読み込み中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <h3>平均スコア比較</h3>
+            <canvas id="avg-score-chart"></canvas>
+          </div>
+          <div class="card">
+            <h3>順位分布</h3>
+            <canvas id="rank-distribution-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 最近の対戦タブ -->
+      <div id="recent-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>📅 最近の対戦記録</h2>
+          <div class="filter-controls">
+            <input type="text" id="search-input" class="search-input" placeholder="プレイヤー名で検索...">
+            <select id="game-type-filter" class="filter-select">
+              <option value="">全ての対戦タイプ</option>
+              <option value="四麻東風">四麻東風</option>
+              <option value="四麻半荘">四麻半荘</option>
+              <option value="三麻東風">三麻東風</option>
+              <option value="三麻半荘">三麻半荘</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="recent-games-list" class="games-list">
+          <p class="loading-text">データを読み込み中...</p>
+        </div>
+      </div>
+
+      <!-- プレイヤー統計タブ -->
+      <div id="players-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>👤 プレイヤー統計</h2>
+          <select id="player-select" class="player-select">
+            <option value="">プレイヤーを選択...</option>
+          </select>
+        </div>
+
+        <div id="player-stats-content">
+          <div class="card">
+            <p class="info-text">プレイヤーを選択してください</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 対戦比較タブ -->
+      <div id="compare-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>⚔️ 対戦比較</h2>
+          <div class="compare-controls">
+            <select id="player1-select" class="player-select">
+              <option value="">プレイヤー1を選択...</option>
+            </select>
+            <span class="vs-text">VS</span>
+            <select id="player2-select" class="player-select">
+              <option value="">プレイヤー2を選択...</option>
+            </select>
+            <button id="compare-btn" class="btn btn-primary">比較</button>
+          </div>
+        </div>
+
+        <div id="compare-content">
+          <div class="card">
+            <p class="info-text">2人のプレイヤーを選択して比較ボタンを押してください</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-links">
+        <p>&copy; 2025 麻雀スコアボード</p>
+        <div class="footer-actions">
+          <a href="#" id="game-form-link" class="footer-link" target="_blank">📝 対戦記録入力</a>
+          <span class="separator">|</span>
+          <a href="#" id="player-form-link" class="footer-link" target="_blank">👥 プレイヤー管理</a>
+        </div>
+      </div>
+      <p class="last-updated">最終更新: <span id="last-updated-time">-</span></p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

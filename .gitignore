@@ -1,0 +1,28 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# API keys (DO NOT COMMIT)
+**/config.js.local
+**/.env
+**/.env.local
+
+# Build outputs
+dist/
+build/
+*.zip
+
+# Node modules (if any)
+node_modules/
