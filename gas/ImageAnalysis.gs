@@ -7,6 +7,11 @@
 // 設定
 // ========================================
 
+// スプレッドシートID（Code.gsと共有）
+// 独立したGASプロジェクトの場合、ここにLINE bot連携しているスプレッドシートのIDを設定
+const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') 
+                    || '10UTxzbPu-yARrO0vcyWC8a529zlDYLZRN9d6kqC2w3g'; // デフォルトID
+
 // 画像解析用の設定
 const IMAGE_CONFIG = {
   // APIキーはScript Propertiesから取得（セキュリティのため）
