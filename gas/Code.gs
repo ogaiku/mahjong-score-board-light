@@ -52,17 +52,33 @@ const CONFIG = {
 
 /**
  * GETリクエストハンドラー
+ * 
+ * このGASはJSON APIとして動作します。
+ * フロントエンドは別途GitHub Pagesなどでホスティングしてください。
  */
 function doGet(e) {
-  const action = e.parameter.action || 'home';
-  const seasonKey = e.parameter.season || getCurrentSeason();
+  const action = e.parameter.action || 'api';
   
   try {
     switch(action) {
       case 'api':
         return handleAPI(e);
       case 'home':
-        return serveHomePage();
+        // 静的サイトへのリダイレクト案内
+        return ContentService
+          .createTextOutput(JSON.stringify({ 
+            message: 'このAPIは麻雀スコアボードのバックエンドです',
+            frontendUrl: 'https://ogaiku.github.io/mahjong-score-board-light/',
+            documentation: 'https://github.com/ogaiku/mahjong-score-board-light',
+            availableEndpoints: [
+              '?action=api&endpoint=seasons',
+              '?action=api&endpoint=rankings&season=SEASON_KEY',
+              '?action=api&endpoint=recent_games&season=SEASON_KEY&limit=20',
+              '?action=api&endpoint=player_stats&season=SEASON_KEY&playerId=ID',
+              '?action=api&endpoint=head_to_head&season=SEASON_KEY&player1=ID&player2=ID'
+            ]
+          }))
+          .setMimeType(ContentService.MimeType.JSON);
       default:
         return ContentService
           .createTextOutput(JSON.stringify({ error: 'Unknown action' }))
@@ -84,6 +100,12 @@ function doGet(e) {
 function doPost(e) {
   try {
     const action = e.parameter.action;
+    
+    // 画像解析の場合は特別処理
+    if (action === 'analyze_image') {
+      return doPostImageAnalysis(e);
+    }
+    
     const data = JSON.parse(e.postData.contents);
     
     switch(action) {
@@ -879,13 +901,9 @@ function updatePlayer(data) {
 // ホームページ提供
 // ========================================
 
-function serveHomePage() {
-  const html = HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('麻雀スコアボード')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  
-  return html;
-}
+// serveHomePage 関数は削除されました
+// フロントエンドは GitHub Pages でホスティングされます
+// URL: https://ogaiku.github.io/mahjong-score-board-light/
 
 // ========================================
 // ユーティリティ関数
